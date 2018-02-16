@@ -1,6 +1,4 @@
-#!/bin/bash
-#
-# Use this shell script to compile (if necessary) your code and then execute it. Below is an example of what might be found in this file if your program was written in Python
-#
-#python ./src/donation-analytics.py ./input/itcont.txt ./input/percentile.txt ./output/repeat_donors.txt
-
+#/bin/bash
+#Please increase the java heap size based on the dataset and flush the GC before running this code for huge datasets
+scalac ./src/GenerateRepeatDonorsFile.scala
+scala -J-Xmx4g ./src/GenerateRepeatDonorsFile.scala ./input/itcont.txt ./input/percentile.txt ./output/repeat_donors.txt
