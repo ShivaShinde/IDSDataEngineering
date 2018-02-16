@@ -1,22 +1,22 @@
-Introduction
+**Introduction**
 I have been working as a data engineer for more than 2 years. Most of my data engineering work is on distributed systems like Spark, Hadoop, Casandra etc.
 
 I am a spark developer and likes to code in Scala since it’s the native coding language for Apache Spark. Most of my code is written in a distributed way which Spark likes. I often tend to use map, flatmap and filter heavily since they are distributed functions called as transformations on Spark to leverage Spark better.
 
-Development Directory:
+**Development Directory:**
 In src directory there is GenerateRepeatDonorFile.scala file which basically contains all the code required to execute this test.
 
 I have also written unit test cases using scale using Scala Funsuite package.
 
-Test Directory:
+**Test Directory:**
 I have added to two test scenarios 10k record file and also a more than 1 million record file. In my test directory currently there should be three test directories. Please do check.
 
-Run.sh:
+**Run.sh:**
 In this file I have added two command one for compilation and the other for executing the code. Please do not forget to increase the java heap size if you want to test my code on large datasets.
 
 I have tried not to include any external libraries and dependencies. My code should work on simple Scala, this is pure Scala code with no external libraries etc. Since it is mentioned that we are not allowed to use any computation engine I have followed this approach.
 
-Conclusion:
+**Conclusion:**
 I have implemented this code using LinkedHashMap which preserves order and is very efficient. However, there are few other areas where I need to write code efficiently. For example, while reading a file and generate schema I need to find an efficient way to do that. Because of very less time and my busy office with two different projects I am giving my best here.
 
-I really enjoyed this coding challenge. Thanks for Insight data science for giving me this opportunity, hope I will join soon :)
+I really enjoyed this coding challenge. Thanks for Insight data science for giving me this opportunity.
