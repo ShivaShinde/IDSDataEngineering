@@ -1,8 +1,9 @@
-import scala.collection.mutable.LinkedHashMap
 import java.io.{FileWriter, PrintWriter}
 
+import scala.collection.mutable.LinkedHashMap
 
-case class FecTableSchema(CMTE_ID: String, AMNDT_IND: String, RPT_TP: String, TRANSACTION_PGI: String, IMAGE_NUM: String, TRANSACTION_TP: String, ENTITY_TP: String, NAME: String, CITY: String, STATE: String, ZIP_CODE: String, EMPLOYER: String, OCCUPATION: String, TRANSACTION_DT: String, TRANSACTION_AMT: String, OTHER_ID: String, TRAN_ID: String, FILE_NUM: String, MEMO_CD: String, MEMO_TEXT: String, SUB_ID: String)
+
+case class FecTableSchema(CMTE_ID: String, NAME: String, ZIP_CODE: String, TRANSACTION_DT: String, TRANSACTION_AMT: String, OTHER_ID: String)
 
 case class Record(id: String, fname: String, lname: String, code: String, year: String, var amount: Int)
 
@@ -48,16 +49,16 @@ object GenerateRepeatDonorsFile extends App {
       val fecDonorsTable = linesFromItcontFile.map {
         raw_line =>
           val columns = raw_line.split("\\|")
-          FecTableSchema(columns(0), columns(1), columns(2), columns(3), columns(4), columns(5), columns(6), columns(7), columns(8), columns(9), columns(10), columns(11), columns(12), columns(13), columns(14), columns(15), columns(16), columns(17), columns(18), columns(19), columns(20))
+          FecTableSchema(columns(0),columns(7), columns(10), columns(13), columns(14), columns(15))
       }
 
       val selectedFecDonorColumns = fecDonorsTable.map(x => (x.CMTE_ID, x.NAME, x.ZIP_CODE, x.TRANSACTION_DT, x.TRANSACTION_AMT, x.OTHER_ID)).filter(_._6.trim.length<1)
-      val yearWiseSelectedFecDonorColumns=selectedFecDonorColumns.map(record=>(record._1,record._2,record._3,record._4.takeRight(4),record._5,record._6))
+      val yearWiseSelectedFecDonorColumns=selectedFecDonorColumns.map(record=>(record._1,record._2,record._3,record._4.takeRight(4),record._5,record._6)).filter(_._3.trim.length > 4).filter(_._4.trim.length==4)
       val latestYear = findRepeatDonors(yearWiseSelectedFecDonorColumns).map(record=>record._4).max
       val repeatDonors = findRepeatDonors(yearWiseSelectedFecDonorColumns).filter(_._4==latestYear)
 
 
-      val repeatDonorsOutputFormat = repeatDonors.filter(_._3.trim.length > 4).filter(_._4.trim.length==4).map(record => (record._1, record._2, record._3.substring(0, 5), record._4.takeRight(4), record._5))
+      val repeatDonorsOutputFormat = repeatDonors.map(record => (record._1, record._2, record._3.substring(0, 5), record._4.takeRight(4), record._5))
 
 
       println("Polishing all the unnecessary information from itcont.txt file")
@@ -69,12 +70,13 @@ object GenerateRepeatDonorsFile extends App {
           (Key(id, code, year), Record.tupled(recordTuple))
       }
 
-      def percentileValue(percentValue: Int, streamData: List[Int]): Int = {
+      def percentileValue(percentValue: Int, streamData: Seq[Int]): Int = {
         if(streamData.length==0){return 0}else{val firstSort = streamData.sorted
           val k = math.ceil((streamData.size - 1) * (percentValue / 100.0)).toInt;
-          return firstSort(k+1).toInt}
+          return firstSort(k).toInt}
 
       }
+      val orderedAmount=selectedFecDonorColumns.map(r=>r._5.toInt).toSeq
 
       def aggregateDuplicatesWithOrder(
                                         remainingRecords: List[(Key, Record)],
@@ -97,7 +99,7 @@ object GenerateRepeatDonorsFile extends App {
 
           case Nil => processedRecords
         }
-      val lst=List(40,384,250,230,384,333,384)
+
       println("Computing the final result here")
       val result = aggregateDuplicatesWithOrder(
         preparedRecords, LinkedHashMap[Key, List[Record]]()
@@ -106,9 +108,7 @@ object GenerateRepeatDonorsFile extends App {
         case records =>
           records.zipWithIndex.map {
             case (rec, idx) =>
-              val newVal=rec.amount
-              lst:+newVal
-              val percent=percentileValue(percentValue,lst)
+              var percent=percentileValue(percentValue,orderedAmount)
               List(rec.id, rec.code, rec.year, percent, rec.amount, idx + 1).mkString(",")
           }
       }
@@ -135,5 +135,4 @@ object GenerateRepeatDonorsFile extends App {
 
 
 }
-
 
